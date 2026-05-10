@@ -21,6 +21,10 @@ wheels/
 .installed.cfg
 *.egg
 .pytest_cache/
+/venv/
+venv/
+*/venv/
+backend/venv
 
 # SQLite
 *.db

@@ -19,23 +19,29 @@ export default function CandidateDetail() {
       try {
         const res = await api.get(`/candidates/${id}`);
         setCandidate(res.data);
-        setScores(res.data.scores);
+        // Scores will be set by SSE
       } catch (err) {
         console.error(err);
       }
     };
     fetchCandidate();
 
-    // Setup SSE for real-time scores
-    const token = localStorage.getItem('token');
-    const source = new SSE(`http://localhost:8000/candidates/${id}/stream`, {
+    // Setup SSE for real-time scores using the shared API base URL
+    const token = user?.token || localStorage.getItem('token');
+    const baseUrl = api.defaults?.baseURL || 'http://localhost:8000';
+    const streamUrl = `${baseUrl}/candidates/${id}/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    const source = new SSE(streamUrl, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
+    source.addEventListener('current_scores', (e) => {
+      const scores = JSON.parse(e.data);
+      setScores(scores);
+    });
+
     source.addEventListener('new_score', (e) => {
-      // Re-fetch candidate to get the latest scores properly hydrated
-      // Or simply append if data was full object. Here we just re-fetch for simplicity.
-      fetchCandidate();
+      const newScore = JSON.parse(e.data);
+      setScores(prev => [...prev, newScore]);
     });
 
     source.stream();
@@ -43,7 +49,7 @@ export default function CandidateDetail() {
     return () => {
       source.close();
     };
-  }, [id]);
+  }, [id, user]);
 
   const handleScoreSubmit = async (e) => {
     e.preventDefault();
