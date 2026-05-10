@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../lib/api';
+import api, { baseURL } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { SSE } from 'sse.js';
 import { ArrowLeft, UserCircle, Brain, Star, FileText } from 'lucide-react';
@@ -28,8 +28,7 @@ export default function CandidateDetail() {
 
     // Setup SSE for real-time scores using the shared API base URL
     const token = user?.token || localStorage.getItem('token');
-    const baseUrl = api.defaults?.baseURL || 'http://localhost:8000';
-    const streamUrl = `${baseUrl}/candidates/${id}/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    const streamUrl = `${baseURL}/candidates/${id}/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`;
     const source = new SSE(streamUrl, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -79,7 +78,7 @@ export default function CandidateDetail() {
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        
+
         <Link to="/" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary-600 mb-6 transition-colors">
           <ArrowLeft size={16} className="mr-2" />
           Back to Candidates
@@ -92,7 +91,7 @@ export default function CandidateDetail() {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-slate-900 mb-1">{candidate.name}</h1>
               <p className="text-slate-500 font-medium mb-4">{candidate.role_applied} • {candidate.email}</p>
-              
+
               <div className="flex flex-wrap gap-2">
                 {candidate.skills.map(s => (
                   <span key={s} className="px-3 py-1 bg-slate-100 text-slate-600 text-sm rounded-full font-medium">
@@ -115,7 +114,7 @@ export default function CandidateDetail() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
+
           <div className="md:col-span-2 space-y-8">
             {/* AI Summary Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
@@ -126,7 +125,7 @@ export default function CandidateDetail() {
                 <Brain size={20} className="text-primary-500 mr-2" />
                 AI Assistant Summary
               </h3>
-              
+
               {summary ? (
                 <div className="bg-primary-50 p-4 rounded-xl border border-primary-100 text-primary-900 leading-relaxed relative z-10">
                   {summary}
@@ -134,7 +133,7 @@ export default function CandidateDetail() {
               ) : (
                 <div className="relative z-10">
                   <p className="text-slate-500 text-sm mb-4">Generate an AI summary of this candidate's profile and initial assessments.</p>
-                  <button 
+                  <button
                     onClick={handleGenerateSummary}
                     disabled={isGeneratingSummary}
                     className="flex items-center px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
@@ -167,7 +166,7 @@ export default function CandidateDetail() {
                     </div>
                     <div>
                       <div className="font-bold text-slate-800">{s.category}</div>
-                      <div className="text-sm text-slate-500 mb-2">By Reviewer: {s.reviewer_id.substring(0,8)}...</div>
+                      <div className="text-sm text-slate-500 mb-2">By Reviewer: {s.reviewer_id.substring(0, 8)}...</div>
                       {s.note && <div className="text-slate-700 italic bg-slate-50 p-2 rounded text-sm border border-slate-100">"{s.note}"</div>}
                     </div>
                   </div>
@@ -188,10 +187,10 @@ export default function CandidateDetail() {
               <form onSubmit={handleScoreSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                  <select 
+                  <select
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     value={scoreForm.category}
-                    onChange={e => setScoreForm({...scoreForm, category: e.target.value})}
+                    onChange={e => setScoreForm({ ...scoreForm, category: e.target.value })}
                   >
                     <option>Technical</option>
                     <option>Communication</option>
@@ -202,11 +201,11 @@ export default function CandidateDetail() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Score (1-5)</label>
                   <div className="flex gap-2">
-                    {[1,2,3,4,5].map(num => (
+                    {[1, 2, 3, 4, 5].map(num => (
                       <button
                         key={num}
                         type="button"
-                        onClick={() => setScoreForm({...scoreForm, score: num})}
+                        onClick={() => setScoreForm({ ...scoreForm, score: num })}
                         className={`flex-1 py-2 rounded-lg font-bold transition-all ${scoreForm.score === num ? 'bg-primary-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                       >
                         {num}
@@ -216,11 +215,11 @@ export default function CandidateDetail() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
-                  <textarea 
+                  <textarea
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     rows="3"
                     value={scoreForm.note}
-                    onChange={e => setScoreForm({...scoreForm, note: e.target.value})}
+                    onChange={e => setScoreForm({ ...scoreForm, note: e.target.value })}
                     placeholder="Optional feedback..."
                   ></textarea>
                 </div>
