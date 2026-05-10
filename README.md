@@ -8,11 +8,18 @@ This is a full-stack candidate scoring and review dashboard built for the TechKr
     ```bash
     cp .env.example .env
     ```
-2.  **Start Services**: Use Docker Compose to build and start the backend and frontend.
+2.  **Backend Local Setup (optional)**: Create a Python virtual environment and install dependencies.
+    ```bash
+    cd backend
+    python3 -m venv venv
+    source venv/bin/activate
+    python3 -m pip install -r requirements.txt
+    ```
+3.  **Start Services**: Use Docker Compose to build and start the backend and frontend.
     ```bash
     docker compose up --build
     ```
-3.  **Seed Data**: (Optional) Populate the database with initial candidates and users.
+4.  **Seed Data**: (Optional) Populate the database with initial candidates and users.
     ```bash
     docker compose exec backend python seed.py
     ```
