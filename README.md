@@ -23,6 +23,11 @@ This is a full-stack candidate scoring and review dashboard built for the TechKr
     ```bash
     docker compose exec backend python seed.py
     ```
+5.  **Run Tests**: (Optional) Run the backend API tests.
+    ```bash
+    cd backend
+    python3 test_api.py
+    ```
 4.  **Access**:
     *   Frontend: `http://localhost:5173`
     *   Backend API Docs: `http://localhost:8000/docs`
