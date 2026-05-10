@@ -1,7 +1,25 @@
+import os
+import sys
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
+import uuid
+
+# Ensure backend root is importable when running tests from backend/tests
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from app.main import app
+from app.database import engine, Base
+
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 @pytest_asyncio.fixture
 async def ac():
@@ -14,7 +32,6 @@ async def test_auth_enforcement(ac: AsyncClient):
     response = await ac.get("/candidates")
     assert response.status_code == 403
 
-import uuid
 
 @pytest.mark.asyncio
 async def test_register_and_login(ac: AsyncClient):
@@ -36,3 +53,7 @@ async def test_register_and_login(ac: AsyncClient):
     })
     assert login_res.status_code == 200
     assert "access_token" in login_res.json()
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__]))
